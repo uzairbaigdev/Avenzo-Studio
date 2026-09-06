@@ -1,0 +1,366 @@
+import React, { useState, useEffect } from "react";
+import Navigation from "../../components/navigation/navigation.jsx";
+
+/* ---------- SHARED ICON PRIMITIVES ---------- */
+
+function CheckIcon(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0 text-[#D9A94E]"
+      {...props}
+    >
+      <polyline points="20 6 9 17 4 12" />
+    </svg>
+  );
+}
+
+function CrossIcon(props) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className="h-4 w-4 shrink-0 text-neutral-600"
+      {...props}
+    >
+      <line x1="18" y1="6" x2="6" y2="18" />
+      <line x1="6" y1="6" x2="18" y2="18" />
+    </svg>
+  );
+}
+
+function ChevronDown(props) {
+  return (
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" {...props}>
+      <path d="M6 9l6 6 6-6" fill="none" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+/* ---------- SERVICE CATEGORIES DATA (USD CONVERTED) ---------- */
+
+const SERVICE_CATEGORIES = [
+  {
+    id: "portfolio",
+    categoryTitle: "1. Portfolio Websites",
+    categorySubtitle: "Engineered for creators, artists, models, and executives to present work professionally.",
+    tiers: [
+      { name: "Normal", price: "$54 USD" },
+      { name: "Standard", price: "$108 USD", recommended: true },
+      { name: "Premium", price: "$180 USD" },
+    ],
+    features: [
+      { name: "Delivery Time", normal: "3 Days", standard: "5 Days", premium: "8 Days" },
+      { name: "Revisions", normal: "2 Revisions", standard: "5 Revisions", premium: "Unlimited" },
+      { name: "Number of Pages", normal: "1 Page", standard: "Up to 5 Pages", premium: "Up to 10 Pages" },
+      { name: "Responsive Mobile & Desktop", normal: true, standard: true, premium: true },
+      { name: "Contact Form Setup", normal: true, standard: true, premium: true },
+      { name: "Interactive Work Gallery", normal: true, standard: true, premium: true },
+      { name: "SEO Meta & Speed Tuning", normal: false, standard: true, premium: true },
+      { name: "Custom Domain & Hosting Setup", normal: false, standard: true, premium: true },
+      { name: "Dynamic Admin CMS / Blog", normal: false, standard: false, premium: true },
+      { name: "Priority Support", normal: "14 Days", standard: "30 Days", premium: "60 Days" },
+    ],
+  },
+  {
+    id: "business",
+    categoryTitle: "2. Business Websites",
+    categorySubtitle: "Corporate and service company websites built to build authority and convert leads.",
+    tiers: [
+      { name: "Normal", price: "$126 USD" },
+      { name: "Standard", price: "$252 USD", recommended: true },
+      { name: "Premium", price: "$432 USD" },
+    ],
+    features: [
+      { name: "Delivery Time", normal: "5 Days", standard: "10 Days", premium: "18 Days" },
+      { name: "Revisions", normal: "3 Revisions", standard: "6 Revisions", premium: "Unlimited" },
+      { name: "Number of Pages", normal: "Up to 4 Pages", standard: "Up to 8 Pages", premium: "Up to 15 Pages" },
+      { name: "Responsive Mobile-First Design", normal: true, standard: true, premium: true },
+      { name: "Lead Contact & Quote Form", normal: true, standard: true, premium: true },
+      { name: "Google Maps Location Sync", normal: true, standard: true, premium: true },
+      { name: "Lead Email Auto-Routing", normal: false, standard: true, premium: true },
+      { name: "Admin CMS Content Manager", normal: false, standard: true, premium: true },
+      { name: "Online Calendar Booking Sync", normal: false, standard: false, premium: true },
+      { name: "Database Lead Storage", normal: false, standard: false, premium: true },
+      { name: "Maintenance & Support", normal: "14 Days", standard: "30 Days", premium: "60 Days" },
+    ],
+  },
+  {
+    id: "custom",
+    categoryTitle: "3. Custom Web Applications",
+    categorySubtitle: "Bespoke React web applications hand-coded from scratch to your exact functional spec.",
+    tiers: [
+      { name: "Normal", price: "$216 USD" },
+      { name: "Standard", price: "$432 USD", recommended: true },
+      { name: "Premium", price: "$791 USD" },
+    ],
+    features: [
+      { name: "Delivery Time", normal: "7 Days", standard: "14 Days", premium: "25 Days" },
+      { name: "Revisions", normal: "2 Revisions", standard: "5 Revisions", premium: "Unlimited" },
+      { name: "Custom Component Architecture", normal: true, standard: true, premium: true },
+      { name: "Figma to Code Pixel-Perfect", normal: true, standard: true, premium: true },
+      { name: "User Auth (Login / Signup)", normal: false, standard: true, premium: true },
+      { name: "REST / GraphQL API Sync", normal: false, standard: true, premium: true },
+      { name: "Custom User Dashboard", normal: false, standard: true, premium: true },
+      { name: "Backend Database Schema", normal: false, standard: false, premium: true },
+      { name: "Role-Based Access Control", normal: false, standard: false, premium: true },
+      { name: "Technical Bug-Fix Support", normal: "14 Days", standard: "30 Days", premium: "60 Days" },
+    ],
+  },
+  {
+    id: "ecommerce",
+    categoryTitle: "4. E-Commerce Stores",
+    categorySubtitle: "Conversion-optimized digital storefronts engineered to sell products seamlessly.",
+    tiers: [
+      { name: "Normal", price: "$162 USD" },
+      { name: "Standard", price: "$324 USD", recommended: true },
+      { name: "Premium", price: "$576 USD" },
+    ],
+    features: [
+      { name: "Delivery Time", normal: "7 Days", standard: "12 Days", premium: "20 Days" },
+      { name: "Revisions", normal: "3 Revisions", standard: "6 Revisions", premium: "Unlimited" },
+      { name: "Products Uploaded", normal: "Up to 20", standard: "Up to 60", premium: "Unlimited" },
+      { name: "Shopping Cart & Checkout", normal: true, standard: true, premium: true },
+      { name: "Payment Gateway (PayFast / JazzCash / EasyPaisa)", normal: true, standard: true, premium: true },
+      { name: "Discount Codes & Coupons", normal: false, standard: true, premium: true },
+      { name: "Inventory & Stock Tracking", normal: false, standard: true, premium: true },
+      { name: "Multi-Currency & Tax Auto", normal: false, standard: false, premium: true },
+      { name: "Abandoned Cart Auto Recovery", normal: false, standard: false, premium: true },
+      { name: "Store Maintenance Support", normal: "14 Days", standard: "30 Days", premium: "60 Days" },
+    ],
+  },
+  {
+    id: "automation",
+    categoryTitle: "5. Web Automation & Workflows",
+    categorySubtitle: "Automate manual tasks, sync databases, and streamline customer pipelines.",
+    tiers: [
+      { name: "Normal", price: "$90 USD" },
+      { name: "Standard", price: "$180 USD", recommended: true },
+      { name: "Premium", price: "$342 USD" },
+    ],
+    features: [
+      { name: "Delivery Time", normal: "4 Days", standard: "8 Days", premium: "14 Days" },
+      { name: "Revisions", normal: "2 Revisions", standard: "5 Revisions", premium: "Unlimited" },
+      { name: "Form-to-Email / Slack Alerts", normal: true, standard: true, premium: true },
+      { name: "Google Sheets / CRM Sync", normal: true, standard: true, premium: true },
+      { name: "Multi-App Workflow Connections", normal: false, standard: true, premium: true },
+      { name: "Database Auto-Sync", normal: false, standard: true, premium: true },
+      { name: "Webhook & API Integration", normal: false, standard: true, premium: true },
+      { name: "AI Response Bots (OpenAI)", normal: false, standard: false, premium: true },
+      { name: "Custom Python / Node Scripts", normal: false, standard: false, premium: true },
+      { name: "Monitoring & Maintenance", normal: "14 Days", standard: "30 Days", premium: "60 Days" },
+    ],
+  },
+];
+
+const PRICING_FAQS = [
+  {
+    q: "How does the feature matrix order process work?",
+    a: "Locate your required service category, compare the features on the left with their values in the columns, and click the order button corresponding to your preferred tier.",
+  },
+  {
+    q: "Do I receive 100% ownership of the website?",
+    a: "Yes. Once the project is finished, you receive full ownership of all source code, assets, and design files.",
+  },
+  {
+    q: "Are local Pakistani payment gateways supported for E-Commerce?",
+    a: "Yes, we integrate local Pakistani gateways like PayFast, JazzCash, and EasyPaisa, alongside international providers like Stripe.",
+  },
+  {
+    q: "What happens if I need additional custom features?",
+    a: "If you need a custom combination of features not listed in the matrix, click 'Request Custom Scope' below for a tailored quote.",
+  },
+];
+
+/* ---------- MAIN COMPONENT ---------- */
+
+export default function Pricing() {
+  const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
+  useEffect(() => {
+    document.title = "Services & Pricing — Avenzo Studio";
+  }, []);
+
+  const renderCellContent = (value) => {
+    if (typeof value === "boolean") {
+      return value ? (
+        <CheckIcon className="mx-auto" />
+      ) : (
+        <CrossIcon className="mx-auto" />
+      );
+    }
+    return <span className="font-medium text-neutral-200 block text-center">{value}</span>;
+  };
+
+  return (
+    <main className="relative w-full overflow-hidden bg-black text-white">
+      <Navigation />
+
+      {/* Hero Header */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#0c0d0f] via-[#08090a] to-black pt-36 pb-16">
+        <div className="pointer-events-none absolute inset-0 z-[1] opacity-[0.05] [background-image:linear-gradient(to_right,white_1px,transparent_1px),linear-gradient(to_bottom,white_1px,transparent_1px)] [background-size:48px_48px]" />
+
+        <div className="relative z-10 mx-auto max-w-4xl px-6 text-center lg:px-10">
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D9A94E]">
+            Transparent USD Rates
+          </p>
+          <h1 className="mt-3 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl">
+            Service Specs & Pricing Matrix
+          </h1>
+          <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-neutral-400 sm:text-lg">
+            Compare features on the left against clear values in USD across Normal, Standard, and Premium tiers.
+          </p>
+        </div>
+      </section>
+
+      {/* 5 SERVICE CATEGORY TABLES */}
+      <div className="space-y-24 pb-24">
+        {SERVICE_CATEGORIES.map((category) => (
+          <section key={category.id} className="relative w-full bg-black px-6 lg:px-10">
+            <div className="mx-auto max-w-7xl">
+              {/* Category Header */}
+              <div className="mb-8 border-b border-white/10 pb-4 text-center">
+                <h2 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+                  {category.categoryTitle}
+                </h2>
+                <p className="mt-2 text-sm text-neutral-400">{category.categorySubtitle}</p>
+              </div>
+
+              {/* Table Container */}
+              <div className="overflow-x-auto rounded-2xl border border-white/10 bg-[#0B0C0E]">
+                <table className="w-full border-collapse text-center min-w-[700px]">
+                  <thead>
+                    <tr className="border-b border-white/10 bg-white/[0.02]">
+                      <th className="w-2/5 p-5 text-sm font-bold uppercase tracking-wider text-[#D9A94E] text-center">
+                        Feature / Deliverable
+                      </th>
+                      {category.tiers.map((tier, tIdx) => (
+                        <th
+                          key={tIdx}
+                          className={`w-1/5 p-5 text-center transition-colors ${
+                            tier.recommended ? "bg-[#D9A94E]/10" : ""
+                          }`}
+                        >
+                          {tier.recommended && (
+                            <span className="mb-2 inline-block rounded-full bg-[#D9A94E] px-2.5 py-0.5 text-[9px] font-bold uppercase tracking-widest text-black">
+                              Best Choice
+                            </span>
+                          )}
+                          <div className="text-base font-bold text-white text-center">{tier.name}</div>
+                          <div className="mt-1 text-xl font-extrabold text-[#D9A94E] text-center">{tier.price}</div>
+                        </th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-white/10 text-xs sm:text-sm">
+                    {category.features.map((feature, fIdx) => (
+                      <tr key={fIdx} className="hover:bg-white/[0.02] transition-colors">
+                        <td className="p-5 font-semibold text-neutral-300 border-r border-white/10 text-center">
+                          {feature.name}
+                        </td>
+                        <td className="p-5 text-center border-r border-white/10">
+                          {renderCellContent(feature.normal)}
+                        </td>
+                        <td className="p-5 text-center border-r border-white/10 bg-[#D9A94E]/[0.02]">
+                          {renderCellContent(feature.standard)}
+                        </td>
+                        <td className="p-5 text-center">
+                          {renderCellContent(feature.premium)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                  <tfoot>
+                    <tr className="border-t border-white/10 bg-white/[0.02]">
+                      <td className="p-5 border-r border-white/10 font-bold text-neutral-400 text-center">
+                        Ready to Begin?
+                      </td>
+                      {category.tiers.map((tier, tIdx) => (
+                        <td key={tIdx} className="p-5 text-center">
+                          <a
+                            href="/contact"
+                            className={`inline-flex h-10 w-full items-center justify-center rounded-full text-xs font-semibold transition-all duration-300 ${
+                              tier.recommended
+                                ? "bg-gradient-to-r from-[#F3CE8E] via-[#D9A94E] to-[#8a6a2c] text-black shadow-[0_4px_15px_rgba(217,169,78,0.25)] hover:scale-105"
+                                : "border border-white/20 bg-white/5 text-white hover:border-[#D9A94E] hover:text-[#D9A94E]"
+                            }`}
+                          >
+                            Select {tier.name}
+                          </a>
+                        </td>
+                      ))}
+                    </tr>
+                  </tfoot>
+                </table>
+              </div>
+            </div>
+          </section>
+        ))}
+      </div>
+
+      {/* FAQ SECTION */}
+      <section className="relative w-full bg-[#0B0C0E] border-t border-white/10 px-6 py-24 lg:px-10">
+        <div className="mx-auto max-w-4xl">
+          <div className="text-center">
+            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D9A94E]">Order Info</p>
+            <h2 className="mt-3 text-3xl font-bold sm:text-4xl">Frequently Asked Questions</h2>
+          </div>
+
+          <div className="mt-12 space-y-4">
+            {PRICING_FAQS.map((faq, index) => {
+              const isOpen = openFaqIndex === index;
+              return (
+                <div
+                  key={index}
+                  className="rounded-2xl border border-white/10 bg-black overflow-hidden transition-colors hover:border-[#D9A94E]/40"
+                >
+                  <button
+                    onClick={() => setOpenFaqIndex(isOpen ? null : index)}
+                    className="w-full p-6 text-left font-bold flex justify-between items-center text-white text-sm sm:text-base"
+                  >
+                    <span>{faq.q}</span>
+                    <ChevronDown
+                      className={`h-5 w-5 text-[#D9A94E] transition-transform duration-300 shrink-0 ${
+                        isOpen ? "rotate-180" : ""
+                      }`}
+                    />
+                  </button>
+                  {isOpen && (
+                    <div className="px-6 pb-6 text-xs sm:text-sm text-neutral-300 leading-relaxed border-t border-white/10 pt-4 text-left">
+                      {faq.a}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA BANNER */}
+      <section className="relative w-full overflow-hidden bg-gradient-to-b from-black to-[#0c0d0f] px-6 py-20 text-center">
+        <div className="relative mx-auto max-w-2xl">
+          <h2 className="text-3xl font-extrabold text-white sm:text-4xl">Need a Custom Scope?</h2>
+          <p className="mt-4 text-base text-neutral-400">
+            Send us your brief and get a custom quote and timeline within 24 hours.
+          </p>
+          <a
+            href="/contact"
+            className="mt-8 inline-flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#F3CE8E] via-[#D9A94E] to-[#8a6a2c] px-8 text-sm font-semibold text-black shadow-[0_6px_24px_rgba(217,169,78,0.3)] transition-transform duration-200 hover:scale-105"
+          >
+            Request Custom Scope
+          </a>
+        </div>
+      </section>
+    </main>
+  );
+}
