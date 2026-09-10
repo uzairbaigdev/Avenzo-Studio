@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navigation from "../../components/navigation/navigation.jsx";
+import Loader from "../../components/loader/loader.jsx";
 
 /* ---------- SHARED ICON PRIMITIVES ---------- */
 
@@ -184,10 +185,17 @@ const PRICING_FAQS = [
 /* ---------- MAIN COMPONENT ---------- */
 
 export default function Pricing() {
+  const [isLoading, setIsLoading] = useState(true);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
   useEffect(() => {
     document.title = "Services & Pricing — Avenzo Studio";
+
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
   }, []);
 
   const renderCellContent = (value) => {
@@ -200,6 +208,19 @@ export default function Pricing() {
     }
     return <span className="font-medium text-neutral-200 block text-center">{value}</span>;
   };
+
+  if (isLoading) {
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-black">
+        <div className="flex flex-col items-center space-y-4">
+          <Loader />
+          <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D9A94E]">
+            Loading Pricing Matrix...
+          </p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <main className="relative w-full overflow-hidden bg-black text-white">

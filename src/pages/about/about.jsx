@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useRef } from "react";
 import logo from "../../assets/avenzo-logo-transparent.png";
 import Navigation from "../../components/navigation/navigation.jsx";
+import Loader from "../../components/loader/loader.jsx";
+import SixthSection from "../../components/homeComponents/sixthSection.jsx";
 
-/* ---------- shared icon primitive ---------- */
 
 function Icon({ children, className = "" }) {
   return (
@@ -21,7 +22,6 @@ function Icon({ children, className = "" }) {
   );
 }
 
-/* ---------- data definitions ---------- */
 
 const ROTATING_WORDS = ["custom", "e-commerce", "business"];
 
@@ -413,28 +413,6 @@ const VALUES = [
   { id: "partnership", title: "Long-term partnership", description: "We stick around after launch — support, iteration, and growth.", Icon: PartnershipIcon, image: "https://images.unsplash.com/photo-1600880292203-757bb62b4baf?auto=format&fit=crop&w=500&q=80" },
 ];
 
-const TESTIMONIALS = [
-  {
-    id: "hamza",
-    quote: "We came in with a vague idea of what we wanted and left with a working store we could actually manage ourselves. No jargon, no chasing updates.",
-    name: "Hamza Rauf",
-    role: "Founder, E-Commerce Platform",
-  },
-  {
-    id: "sana",
-    quote: "The portfolio site loads instantly and the code was handed over clean. Our next hire understood it in an afternoon.",
-    name: "Sana Iqbal",
-    role: "Creative Director, Studio Lead",
-  },
-  {
-    id: "bilal",
-    quote: "Every milestone shipped on the date we agreed on at the start. That predictability mattered more to us than flashy extras.",
-    name: "Bilal Ahmed",
-    role: "Operations Lead, Logistics",
-  },
-];
-
-/* ---------- helpers & hooks ---------- */
 
 function useCountUp(target, start, duration = 1400) {
   const [value, setValue] = useState(0);
@@ -474,11 +452,11 @@ function StatCounter({ value, label, start }) {
 }
 
 export default function About() {
+  const [isLoading, setIsLoading] = useState(true);
   const [activeTab, setActiveTab] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
   const [statsInView, setStatsInView] = useState(false);
   const [techFilter, setTechFilter] = useState("All");
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
   const [serviceFilter, setServiceFilter] = useState("All");
   const [expandedService, setExpandedService] = useState(null);
   const [openWhyIndex, setOpenWhyIndex] = useState(0);
@@ -493,6 +471,15 @@ export default function About() {
     serviceFilter === "All" ? SERVICES : SERVICES.filter((s) => s.category === serviceFilter);
 
   useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 5000);
+
+    return () => clearTimeout(timer);
+  }, []);
+
+  useEffect(() => {
+    if (isLoading) return;
     const node = statsRef.current;
     if (!node) return;
     const observer = new IntersectionObserver(
@@ -506,14 +493,7 @@ export default function About() {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
+  }, [isLoading]);
 
   useEffect(() => {
     if (isPaused) return;
@@ -522,6 +502,10 @@ export default function About() {
     }, 4000);
     return () => clearInterval(interval);
   }, [isPaused]);
+
+  if (isLoading) {
+    return <Loader />;
+  }
 
   return (
     <main className="relative w-full overflow-hidden bg-black text-white">
@@ -577,7 +561,7 @@ export default function About() {
         .avenzo-badge { animation: avenzoBadgeFloat 5s ease-in-out infinite; }
         .avenzo-blob { animation: avenzoBlobDrift 14s ease-in-out infinite; }
         .avenzo-card-slide > div { opacity: 0; animation: avenzoCardFade 12s infinite linear; animation-fill-mode: backwards; }
-        .avenzo-glow-pulse { animation: avenzoPulseGlow 4s ease-in-out infinite; }
+        .avenzo-glow-[#D9A94E] { animation: avenzoPulseGlow 4s ease-in-out infinite; }
         .animate-progress { animation: avenzoProgressBar 4000ms linear infinite; }
         .animate-marquee { display: flex; width: max-content; animation: avenzoMarquee 20s linear infinite; }
         .animate-marquee:hover { animation-play-state: paused; }
@@ -585,7 +569,6 @@ export default function About() {
 
       <Navigation />
 
-      {/* ============ HERO SECTION ============ */}
       <section className="relative w-full overflow-hidden bg-gradient-to-b from-[#0c0d0f] via-[#08090a] to-black pt-32 pb-24">
         <div className="pointer-events-none absolute inset-0 z-0 select-none overflow-hidden">
           <img
@@ -684,14 +667,12 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ INFINITE CLIENT LOGO MARQUEE ============ */}
       <section className="relative w-full border-y border-white/10 bg-[#0B0C0E] py-8 overflow-hidden select-none">
         <p className="text-center text-[11px] font-semibold uppercase tracking-[0.25em] text-[#D9A94E] mb-6">
           Trusted By Industry Partners & Enterprise Clients
         </p>
         <div className="w-full overflow-hidden flex">
           <div className="animate-marquee">
-            {/* First set of items */}
             <div className="flex shrink-0 items-center gap-16 px-8">
               {LOGO_MARQUEE.map((brand, i) => (
                 <span key={i} className="text-sm font-extrabold uppercase tracking-widest text-neutral-400 hover:text-[#D9A94E] transition-colors whitespace-nowrap">
@@ -699,7 +680,6 @@ export default function About() {
                 </span>
               ))}
             </div>
-            {/* Duplicated set of items for continuous seamless loop */}
             <div className="flex shrink-0 items-center gap-16 px-8" aria-hidden="true">
               {LOGO_MARQUEE.map((brand, i) => (
                 <span key={`dup-${i}`} className="text-sm font-extrabold uppercase tracking-widest text-neutral-400 hover:text-[#D9A94E] transition-colors whitespace-nowrap">
@@ -711,7 +691,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ BENTO SERVICES GRID ============ */}
       <section id="services" className="relative w-full bg-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -817,7 +796,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ TECH CHAIN INTERACTIVE ============ */}
       <section className="relative w-full bg-gradient-to-b from-black via-[#0a0b0d] to-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -851,7 +829,7 @@ export default function About() {
                 key={tech.id}
                 className="group relative flex flex-col items-center rounded-2xl border border-white/10 bg-[#0B0C0E]/80 p-6 text-center backdrop-blur-md transition-all duration-300 hover:-translate-y-2 hover:border-[#D9A94E]/60 hover:bg-[#12141a]"
               >
-                <div className="avenzo-glow-pulse flex h-14 w-14 items-center justify-center rounded-full border border-[#D9A94E]/40 bg-[#D9A94E]/10 text-base font-extrabold text-[#D9A94E] shadow-[0_0_20px_rgba(217,169,78,0.2)]">
+                <div className="avenzo-glow-[#D9A94E] flex h-14 w-14 items-center justify-center rounded-full border border-[#D9A94E]/40 bg-[#D9A94E]/10 text-base font-extrabold text-[#D9A94E] shadow-[0_0_20px_rgba(217,169,78,0.2)]">
                   {tech.label.slice(0, 2).toUpperCase()}
                 </div>
                 <div className="mt-4 text-sm font-bold text-white group-hover:text-[#D9A94E]">{tech.label}</div>
@@ -866,7 +844,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ TIMELINE & MILESTONES ============ */}
       <section className="relative w-full bg-gradient-to-b from-black via-[#0a0b0d] to-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -917,7 +894,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ AUTO-CHANGING CORE PRINCIPLES ============ */}
       <section className="relative w-full bg-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -992,7 +968,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ WHY CHOOSE US ============ */}
       <section className="relative w-full bg-gradient-to-b from-black via-[#0a0b0d] to-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-7xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -1051,7 +1026,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ ENTERPRISE FAQ ACCORDION ============ */}
       <section className="relative w-full bg-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl">
           <div className="mx-auto max-w-2xl text-center">
@@ -1095,79 +1069,6 @@ export default function About() {
         </div>
       </section>
 
-      {/* ============ TESTIMONIALS ============ */}
-      <section className="relative w-full bg-gradient-to-b from-black via-[#0a0b0d] to-black px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-4xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D9A94E]">
-              What Clients Say
-            </p>
-            <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">
-              Feedback from people who shipped with us
-            </h2>
-          </div>
-
-          <div
-            className="relative mt-14 min-h-[220px] rounded-2xl border border-white/10 bg-[#0B0C0E] p-10 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] sm:p-14"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-          >
-            <svg viewBox="0 0 24 24" className="mx-auto h-8 w-8 text-[#D9A94E]/40" fill="currentColor">
-              <path d="M7.17 6C4.87 8.06 3.5 10.72 3.5 13.7c0 3.03 2.02 5.3 4.7 5.3 2.28 0 3.9-1.7 3.9-3.86 0-2.02-1.4-3.5-3.24-3.5-.3 0-.6.04-.86.12.36-1.9 1.9-3.7 3.6-4.7L7.17 6zm9.3 0c-2.3 2.06-3.67 4.72-3.67 7.7 0 3.03 2.02 5.3 4.7 5.3 2.28 0 3.9-1.7 3.9-3.86 0-2.02-1.4-3.5-3.24-3.5-.3 0-.6.04-.86.12.36-1.9 1.9-3.7 3.6-4.7L16.47 6z" />
-            </svg>
-
-            <p
-              key={TESTIMONIALS[testimonialIndex].id}
-              className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-200 sm:text-xl"
-            >
-              {TESTIMONIALS[testimonialIndex].quote}
-            </p>
-
-            <div className="mt-8">
-              <div className="text-sm font-bold text-white">{TESTIMONIALS[testimonialIndex].name}</div>
-              <div className="mt-0.5 text-xs text-neutral-400">{TESTIMONIALS[testimonialIndex].role}</div>
-            </div>
-
-            <button
-              type="button"
-              aria-label="Previous testimonial"
-              onClick={() =>
-                setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)
-              }
-              className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 text-neutral-400 transition-colors hover:border-[#D9A94E]/50 hover:text-[#D9A94E] sm:flex"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              aria-label="Next testimonial"
-              onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
-              className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 text-neutral-400 transition-colors hover:border-[#D9A94E]/50 hover:text-[#D9A94E] sm:flex"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="mt-6 flex justify-center gap-2">
-            {TESTIMONIALS.map((t, i) => (
-              <button
-                key={t.id}
-                aria-label={`Show testimonial from ${t.name}`}
-                onClick={() => setTestimonialIndex(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === testimonialIndex ? "w-6 bg-[#D9A94E]" : "w-1.5 bg-white/20"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* ============ CTA SECTION ============ */}
       <section id="contact" className="relative w-full overflow-hidden bg-gradient-to-b from-black to-[#0c0d0f] px-6 py-24 lg:px-10">
         <div className="avenzo-blob pointer-events-none absolute left-1/2 top-1/2 h-[400px] w-[400px] -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#D9A94E]/15 blur-[140px]" />
         <div className="relative mx-auto max-w-2xl text-center">
@@ -1199,6 +1100,8 @@ export default function About() {
           </div>
         </div>
       </section>
+
+      <SixthSection />
     </main>
   );
 }

@@ -2,6 +2,8 @@ import React, { useState, useEffect, useRef } from "react";
 import logo from "../../assets/avenzo-logo-transparent.png";
 import Navigation from "../../components/navigation/navigation.jsx";
 import SecondSection from "../../components/homeComponents/secondSection.jsx";
+import Loader from "../../components/loader/loader.jsx";
+import SixthSection from "../../components/homeComponents/sixthSection.jsx";
 
 /* ---------- shared icon primitive (matches about.jsx) ---------- */
 
@@ -192,12 +194,6 @@ const WHY_CHOOSE_US = [
   },
 ];
 
-const TESTIMONIALS = [
-  { id: "hamza", quote: "We came in with a vague idea of what we wanted and left with a working store we could actually manage ourselves. No jargon, no chasing updates.", name: "Hamza Rauf", role: "Founder, E-Commerce Platform" },
-  { id: "sana", quote: "The portfolio site loads instantly and the code was handed over clean. Our next hire understood it in an afternoon.", name: "Sana Iqbal", role: "Creative Director, Studio Lead" },
-  { id: "bilal", quote: "Every milestone shipped on the date we agreed on at the start. That predictability mattered more to us than flashy extras.", name: "Bilal Ahmed", role: "Operations Lead, Logistics" },
-];
-
 const FAQS = [
   { q: "Who owns the source code once the site is delivered?", a: "You retain 100% full ownership of all source code, design assets, and repository access upon project completion." },
   { q: "How long does a typical project take from start to finish?", a: "Standard business and custom portfolio sites typically range from 2 to 4 weeks. E-commerce and custom web apps take 4 to 8 weeks depending on requirements." },
@@ -341,15 +337,21 @@ function ServiceCard({ service, isOpen, onToggle }) {
 /* ---------- page ---------- */
 
 export default function Services() {
+  const [loading, setLoading] = useState(true);
   const [serviceFilter, setServiceFilter] = useState("All");
   const [expandedService, setExpandedService] = useState(null);
   const [techFilter, setTechFilter] = useState("All");
-  const [testimonialIndex, setTestimonialIndex] = useState(0);
-  const [isPaused, setIsPaused] = useState(false);
   const [openFaqIndex, setOpenFaqIndex] = useState(null);
   const [openWhyIndex, setOpenWhyIndex] = useState(0);
   const [statsInView, setStatsInView] = useState(false);
   const statsRef = useRef(null);
+
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, []);
 
   const filteredServices =
     serviceFilter === "All" ? SERVICES : SERVICES.filter((s) => s.category === serviceFilter);
@@ -358,14 +360,7 @@ export default function Services() {
     techFilter === "All" ? TECH_STACK : TECH_STACK.filter((t) => t.category === techFilter);
 
   useEffect(() => {
-    if (isPaused) return;
-    const interval = setInterval(() => {
-      setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, [isPaused]);
-
-  useEffect(() => {
+    if (loading) return;
     const node = statsRef.current;
     if (!node) return;
     const observer = new IntersectionObserver(
@@ -379,7 +374,7 @@ export default function Services() {
     );
     observer.observe(node);
     return () => observer.disconnect();
-  }, []);
+  }, [loading]);
 
   /* SEO: set the document title and meta description for this route.
      Uses only real, verified copy already on this page — nothing invented. */
@@ -409,6 +404,10 @@ export default function Services() {
       }
     };
   }, []);
+
+  if (loading) {
+    return <Loader />;
+  }
 
   return (
     <main className="relative w-full overflow-hidden bg-black text-white">
@@ -612,71 +611,6 @@ export default function Services() {
         </div>
       </section>
 
-      {/* ============ TESTIMONIALS ============ */}
-      <section className="relative w-full bg-gradient-to-b from-black via-[#0a0b0d] to-black px-6 py-24 lg:px-10">
-        <div className="mx-auto max-w-4xl">
-          <div className="mx-auto max-w-2xl text-center">
-            <p className="text-xs font-semibold uppercase tracking-[0.25em] text-[#D9A94E]">What Clients Say</p>
-            <h2 className="mt-3 text-3xl font-bold text-white sm:text-4xl">Feedback from people who shipped with us</h2>
-          </div>
-
-          <div
-            className="relative mt-14 min-h-[220px] rounded-2xl border border-white/10 bg-[#0B0C0E] p-10 text-center shadow-[0_20px_50px_rgba(0,0,0,0.5)] sm:p-14"
-            onMouseEnter={() => setIsPaused(true)}
-            onMouseLeave={() => setIsPaused(false)}
-            aria-live="polite"
-            aria-atomic="true"
-          >
-            <svg viewBox="0 0 24 24" className="mx-auto h-8 w-8 text-[#D9A94E]/40" fill="currentColor">
-              <path d="M7.17 6C4.87 8.06 3.5 10.72 3.5 13.7c0 3.03 2.02 5.3 4.7 5.3 2.28 0 3.9-1.7 3.9-3.86 0-2.02-1.4-3.5-3.24-3.5-.3 0-.6.04-.86.12.36-1.9 1.9-3.7 3.6-4.7L7.17 6zm9.3 0c-2.3 2.06-3.67 4.72-3.67 7.7 0 3.03 2.02 5.3 4.7 5.3 2.28 0 3.9-1.7 3.9-3.86 0-2.02-1.4-3.5-3.24-3.5-.3 0-.6.04-.86.12.36-1.9 1.9-3.7 3.6-4.7L16.47 6z" />
-            </svg>
-
-            <p key={TESTIMONIALS[testimonialIndex].id} className="mx-auto mt-6 max-w-2xl text-lg leading-relaxed text-neutral-200 sm:text-xl">
-              {TESTIMONIALS[testimonialIndex].quote}
-            </p>
-
-            <div className="mt-8">
-              <div className="text-sm font-bold text-white">{TESTIMONIALS[testimonialIndex].name}</div>
-              <div className="mt-0.5 text-xs text-neutral-400">{TESTIMONIALS[testimonialIndex].role}</div>
-            </div>
-
-            <button
-              type="button"
-              aria-label="Previous testimonial"
-              onClick={() => setTestimonialIndex((prev) => (prev - 1 + TESTIMONIALS.length) % TESTIMONIALS.length)}
-              className="absolute left-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 text-neutral-400 transition-colors hover:border-[#D9A94E]/50 hover:text-[#D9A94E] sm:flex"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M15 18l-6-6 6-6" />
-              </svg>
-            </button>
-            <button
-              type="button"
-              aria-label="Next testimonial"
-              onClick={() => setTestimonialIndex((prev) => (prev + 1) % TESTIMONIALS.length)}
-              className="absolute right-3 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-white/15 text-neutral-400 transition-colors hover:border-[#D9A94E]/50 hover:text-[#D9A94E] sm:flex"
-            >
-              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M9 18l6-6-6-6" />
-              </svg>
-            </button>
-          </div>
-
-          <div className="mt-6 flex justify-center gap-2">
-            {TESTIMONIALS.map((t, i) => (
-              <button
-                key={t.id}
-                aria-label={`Show testimonial from ${t.name}`}
-                onClick={() => setTestimonialIndex(i)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  i === testimonialIndex ? "w-6 bg-[#D9A94E]" : "w-1.5 bg-white/20"
-                }`}
-              />
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ============ FAQ ============ */}
       <section className="relative w-full bg-black px-6 py-24 lg:px-10">
         <div className="mx-auto max-w-4xl">
@@ -720,9 +654,6 @@ export default function Services() {
           <p className="mt-4 text-base leading-relaxed text-neutral-400">
             Tell us about your project and we'll get back to you with next steps.
           </p>
-          {/* TODO: wire this to your real booking link (Calendly, mailto:, tel:, or a contact form
-              submit handler). Left as a semantic button rather than a link with no destination
-              so it isn't presented as clickable-but-broken. */}
           <button
             type="button"
             className="group relative mt-8 inline-flex h-12 items-center justify-center rounded-full p-[1px] bg-gradient-to-r from-[#F3CE8E] via-[#D9A94E] to-[#8a6a2c] shadow-[0_6px_24px_rgba(217,169,78,0.3)] transition-all duration-300 hover:scale-105"
@@ -743,6 +674,9 @@ export default function Services() {
           </div>
         </div>
       </section>
+
+      {/* ============ SIXTH SECTION ============ */}
+      <SixthSection />
     </main>
   );
 }

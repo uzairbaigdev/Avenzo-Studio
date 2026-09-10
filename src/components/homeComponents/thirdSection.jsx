@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import {useNavigate} from 'react-router-dom';
 
 /**
  * Enhanced Section — Capabilities View
@@ -241,7 +242,7 @@ const ALL_ITEMS = [
 
 export default function CapabilitiesSection() {
   const [selectedItem, setSelectedItem] = useState(null);
-
+  const navigate = useNavigate();
   const row1 = ALL_ITEMS.slice(0, Math.ceil(ALL_ITEMS.length / 2));
   const row2 = ALL_ITEMS.slice(Math.ceil(ALL_ITEMS.length / 2));
 
@@ -371,7 +372,7 @@ export default function CapabilitiesSection() {
             <p className="mt-1 text-sm text-neutral-400">Let's discuss your project requirements and custom build your vision.</p>
           </div>
           <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-            <button className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#D9A94E] px-6 py-3.5 text-sm font-semibold text-black transition-all hover:bg-[#c4953c] shadow-[0_0_20px_rgba(217,169,78,0.3)]">
+            <button onClick={()=> navigate("/contact")} className="flex w-full sm:w-auto items-center justify-center gap-2 rounded-xl bg-[#D9A94E] px-6 py-3.5 text-sm font-semibold text-black transition-all hover:bg-[#c4953c] shadow-[0_0_20px_rgba(217,169,78,0.3)]">
               <span>Start Your Project</span>
               <ArrowRightIcon className="h-4 w-4" />
             </button>
