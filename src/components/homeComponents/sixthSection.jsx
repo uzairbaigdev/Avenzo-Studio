@@ -84,10 +84,10 @@ export default function SixthSection() {
             <div>
               <p className="text-xs font-semibold uppercase tracking-wider text-white mb-3">Navigation</p>
               <ul className="space-y-2 text-xs text-neutral-400">
-                <li><a href="#services" className="hover:text-[#D9A94E] transition-colors">Services</a></li>
-                <li><a href="#process" className="hover:text-[#D9A94E] transition-colors">Process</a></li>
-                <li><a href="#work" className="hover:text-[#D9A94E] transition-colors">Work</a></li>
-                <li><a href="#testimonials" className="hover:text-[#D9A94E] transition-colors">Reviews</a></li>
+                <li><a href="#" className="hover:text-[#D9A94E] transition-colors">Services</a></li>
+                <li><a href="#" className="hover:text-[#D9A94E] transition-colors">Process</a></li>
+                <li><a href="#" className="hover:text-[#D9A94E] transition-colors">Work</a></li>
+                <li><a href="#" className="hover:text-[#D9A94E] transition-colors">Reviews</a></li>
               </ul>
             </div>
 
@@ -123,4 +123,4 @@ export default function SixthSection() {
       </div>
     </section>
   );
-}
+} 
